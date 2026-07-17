@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" subtitle="Your property overview at a glance" />
+      <PageHeader title="Welcome Back👋" subtitle="Your property overview at a glance" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Houses" value={stats?.totalHouses ?? 0} icon="🏠" color="primary" />

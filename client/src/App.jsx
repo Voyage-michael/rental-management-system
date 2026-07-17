@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 // Auth
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ResetPassword from './pages/auth/ResetPassword';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
 // Layouts
 import AdminLayout from './components/layout/AdminLayout';
@@ -51,6 +53,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/" element={<RoleRedirect />} />
 
           {/* Super Admin */}

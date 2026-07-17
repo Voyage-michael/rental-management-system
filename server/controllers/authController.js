@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { pool } = require('../config/database');
+const sendEmail = require('../services/emailService');
 
 const login = async (req, res) => {
   try {
@@ -95,6 +97,157 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: 'Email is required.'
+      });
+    }
+
+    const [rows] = await pool.execute(
+      'SELECT id, name, email FROM users WHERE email = ?',
+      [email.toLowerCase().trim()]
+    );
+    
+
+    // Don't reveal whether the email exists
+    if (rows.length === 0) {
+      return res.json({
+        message: 'If that email exists, a password reset link has been sent.'
+      });
+    }
+
+    const user = rows[0];
+
+    // Generate a secure token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Hash the token before storing it
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Token expires in 1 hour
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+    await pool.execute(
+      `UPDATE users
+       SET reset_token = ?, reset_token_expires = ?
+       WHERE id = ?`,
+      [hashedToken, expires, user.id]
+    );
+
+    const resetLink =
+      `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    await sendEmail(
+      user.email,
+      'Reset Your RentFlow Password',
+      `
+        <h2>Hello ${user.name},</h2>
+
+        <p>You requested a password reset.</p>
+
+        <p>
+          <a href="${resetLink}">
+            Click here to reset your password
+          </a>
+        </p>
+
+        <p>This link expires in one hour.</p>
+
+        <p>If you didn't request this, simply ignore this email.</p>
+      `
+    );
+
+    res.json({
+      message: 'If that email exists, a password reset link has been sent.'
+    });
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+
+    res.status(500).json({
+      message: 'Server error.'
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        message: "Token and password are required."
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters."
+      });
+    }
+
+    // Hash incoming token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    console.log("Hashed token:", hashedToken);
+
+    // Find matching user
+    const [rows] = await pool.execute(
+      `SELECT id
+       FROM users
+       WHERE reset_token = ?
+       AND reset_token_expires > NOW()`,
+      [hashedToken]
+    );
+
+    console.log("Database rows:", rows);
+
+    if (rows.length === 0) {
+      return res.status(400).json({
+        message: "Reset link is invalid or has expired."
+      });
+    }
+
+    const user = rows[0];
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(
+      password,
+      parseInt(process.env.BCRYPT_ROUNDS) || 10
+    );
+
+    // Update password & clear token
+    await pool.execute(
+      `UPDATE users
+       SET password = ?,
+           reset_token = NULL,
+           reset_token_expires = NULL
+       WHERE id = ?`,
+      [hashedPassword, user.id]
+    );
+
+    res.json({
+      message: "Password reset successfully. You can now log in."
+    });
+
+  } catch (error) {
+    console.error("Reset password error:", error);
+
+    res.status(500).json({
+      message: "Server error."
+    });
+  }
+};
 
 const register = async (req, res) => {
   try {
@@ -144,4 +297,4 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getProfile, changePassword };
+module.exports = { login, register, getProfile, changePassword, forgotPassword, resetPassword };

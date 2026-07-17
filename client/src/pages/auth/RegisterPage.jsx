@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
 
@@ -9,6 +10,8 @@ export default function RegisterPage() {
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validate = () => {
     const errs = {};
@@ -147,41 +150,81 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  className={`input-field ${errors.password ? 'border-red-400 focus:ring-red-400' : ''}`}
-                  placeholder="Min. 6 characters"
-                  value={form.password}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                  required
-                />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-              </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Password <span className="text-red-500">*</span>
+  </label>
+
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      className={`input-field pr-12 ${
+        errors.password ? "border-red-400 focus:ring-red-400" : ""
+      }`}
+      placeholder="Enter your password"
+      value={form.password}
+      onChange={handleChange}
+      autoComplete="new-password"
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-primary-600"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+  </div>
+
+  {errors.password && (
+    <p className="text-red-500 text-xs mt-1">
+      {errors.password}
+    </p>
+  )}
+</div>
 
               {/* Confirm Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  className={`input-field ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''}`}
-                  placeholder="Repeat your password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                  required
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
+             <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Confirm Password <span className="text-red-500">*</span>
+  </label>
+
+  <div className="relative">
+    <input
+      type={showConfirmPassword ? "text" : "password"}
+      name="confirmPassword"
+      className={`input-field pr-12 ${
+        errors.confirmPassword ? "border-red-400 focus:ring-red-400" : ""
+      }`}
+      placeholder="Repeat your password"
+      value={form.confirmPassword}
+      onChange={handleChange}
+      autoComplete="new-password"
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() =>
+        setShowConfirmPassword(!showConfirmPassword)
+      }
+      className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-primary-600"
+    >
+      {showConfirmPassword ? (
+        <EyeOff size={20} />
+      ) : (
+        <Eye size={20} />
+      )}
+    </button>
+  </div>
+
+  {errors.confirmPassword && (
+    <p className="text-red-500 text-xs mt-1">
+      {errors.confirmPassword}
+    </p>
+  )}
+</div>
 
               <button
                 type="submit"

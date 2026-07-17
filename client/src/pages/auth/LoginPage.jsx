@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -8,6 +9,8 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,18 +72,45 @@ export default function LoginPage() {
                 autoComplete="email"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                className="input-field"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                required
-                autoComplete="current-password"
-              />
-            </div>
+           <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Password
+  </label>
+
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      className="input-field pr-12"
+      placeholder="••••••••"
+      value={form.password}
+      onChange={(e) =>
+        setForm({ ...form, password: e.target.value })
+      }
+      required
+      autoComplete="current-password"
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-primary-600"
+    >
+      {showPassword ? (
+        <EyeOff size={20} />
+      ) : (
+        <Eye size={20} />
+      )}
+    </button>
+  </div>
+  <div className="text-right">
+  <Link
+    to="/forgot-password"
+    className="text-sm text-primary-600 hover:underline"
+  >
+    Forgot Password?
+  </Link>
+</div>
+</div>
             <button type="submit" className="btn-primary w-full py-3 text-base" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
