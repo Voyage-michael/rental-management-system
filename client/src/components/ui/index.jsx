@@ -1,3 +1,5 @@
+import { TrendingUp } from "lucide-react";
+
 // Stat Card
 export const StatCard = ({ label, value, icon, color = 'primary', sub }) => {
   const colors = {
@@ -8,18 +10,34 @@ export const StatCard = ({ label, value, icon, color = 'primary', sub }) => {
     purple: 'bg-purple-50 text-purple-600',
     teal: 'bg-teal-50 text-teal-600',
   };
-  return (
-    <div className="card flex items-center gap-4">
-      <div className={`${colors[color]} w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0`}>
+return (
+  <div className="card hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-gray-500 font-medium">
+          {label}
+        </p>
+
+        <h3 className="text-3xl font-bold text-gray-900 mt-2">
+          {value}
+        </h3>
+
+        {sub && (
+          <div className="flex items-center mt-2 text-sm text-green-600">
+            <TrendingUp size={16} className="mr-1" />
+            {sub}
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`${colors[color]} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl`}
+      >
         {icon}
       </div>
-      <div>
-        <p className="text-sm text-gray-500 font-medium">{label}</p>
-        <p className="text-2xl font-extrabold text-gray-900 leading-tight">{value}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
-      </div>
     </div>
-  );
+  </div>
+);
 };
 
 // Modal

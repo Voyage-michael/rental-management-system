@@ -7,6 +7,9 @@ import RegisterPage from './pages/auth/RegisterPage';
 import ResetPassword from './pages/auth/ResetPassword';
 import ForgotPassword from './pages/auth/ForgotPassword';
 
+//public
+import LandingPage from './pages/public/LandingPage';
+
 // Layouts
 import AdminLayout from './components/layout/AdminLayout';
 
@@ -51,6 +54,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
