@@ -1,29 +1,27 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (to, subject, html) => {
-    try {
-        const info = await transporter.sendMail({
-            from: `"RentFlow Rental System" <${process.env.EMAIL_USER}>`,
-            to,
-            subject,
-            html,
-        });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html,
+    });
 
-        console.log("✅ Email sent:", info.messageId);
-    } catch (error) {
-        console.error("❌ Email failed:", error);
-        throw error;
+    if (error) {
+      console.error("❌ Email failed:", error);
+      throw new Error(error.message);
     }
+
+    console.log("✅ Email sent:", data?.id);
+    return data;
+  } catch (err) {
+    console.error("❌ Email failed:", err);
+    throw err;
+  }
 };
 
 module.exports = sendEmail;
